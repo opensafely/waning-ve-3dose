@@ -1,12 +1,36 @@
 version: '3.0'
 
 expectations:
-  population_size: 1000
+
+  population_size: 100000
 
 actions:
 
+  ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  ## DO NOT EDIT project.yaml 
+  ## This file is created by create_project.R 
+  ## Edit and run create_project.R to update the project.yaml 
+  ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  ## #################################### 
+  ## study definition 
+  ## #################################### 
+  ## generate dummy data for study_definition 
+
+  dummy_data_vax:
+    run: r:latest analysis/dummy_data_vax.R
+    outputs:
+      moderately_sensitive:
+        dummy_data: analysis/dummy_data_vax.feather
+
+  ## study definition 
+
   generate_study_population:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_vax
+      --output-format feather
+    dummy_data_file: analysis/dummy_data_vax.feather
+    needs:
+    - dummy_data_vax
     outputs:
       highly_sensitive:
-        cohort: output/input.csv
+        cohort: output/input_vax.feather
+
