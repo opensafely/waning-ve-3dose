@@ -1,19 +1,5 @@
 library(tidyverse)
-library(rlang)
-
-
-# preliminaries ----
-study_parameters <- readr::read_rds(here::here("analysis", "lib", "study_parameters.rds"))
-
-set.seed(study_parameters$seed)
-
-n <- study_parameters$n
-
-K <- study_parameters$K
-
-start_date <- study_parameters$start_date
-
-regions <- readr::read_csv(here::here("analysis", "lib", "regions.csv"))
+# library(rlang)
 
 # function for binary flag variables
 var_binary <- function(.data, name, incidence=0.05, keep_vars = TRUE) {
@@ -46,7 +32,7 @@ var_date <- function(.data, name, incidence=0.05,
         x = seq(as.Date(earliest), as.Date(latest), 1), 
         size = nrow(.),
         replace = TRUE),
-      NA_Date_))
+      lubridate::NA_Date_))
   
   if (! keep_vars) {
     out <- out %>% select({{name}})
@@ -69,7 +55,7 @@ var_category <- function(.data, name, categories, conditions=NULL, ratios=NULL, 
 
     patterns_string <- str_c(str_c(conditions, "~\"", categories, "\""), collapse = "; ")
 
-    patterns <- parse_exprs(patterns_string)
+    patterns <- rlang::parse_exprs(patterns_string)
 
     out <- .data %>%
       mutate({{name}} := case_when(!!!patterns))
@@ -163,3 +149,4 @@ var_date_recurrent <- function(
   
   return(out %>% select(-missing))
 }
+
