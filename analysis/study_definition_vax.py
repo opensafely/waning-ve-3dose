@@ -1,7 +1,6 @@
 from cohortextractor import (
     StudyDefinition, 
     patients, 
-    filter_codes_by_category
 )
 
 # Import codelists.py script
@@ -105,7 +104,7 @@ study=StudyDefinition(
     # use 1900 to capture all possible recorded covid vaccinations, including date errors
     # any vaccines occurring before national rollout are later excluded
     index_date = "1900-01-01", 
-    n = 3,
+    n = 4,
     product_name_matches="COVID-19 mRNA Vaccine Comirnaty 30micrograms/0.3ml dose conc for susp for inj MDV (Pfizer)"
   ),
   
@@ -113,7 +112,7 @@ study=StudyDefinition(
   **vaccination_date_X(
     name = "covid_vax_az",
     index_date = "1900-01-01",
-    n = 3,
+    n = 4,
     product_name_matches="COVID-19 Vaccine Vaxzevria 0.5ml inj multidose vials (AstraZeneca)"
   ),
   
@@ -121,7 +120,7 @@ study=StudyDefinition(
   **vaccination_date_X(
     name = "covid_vax_moderna",
     index_date = "1900-01-01",
-    n = 3,
+    n = 4,
     product_name_matches="COVID-19 mRNA Vaccine Spikevax (nucleoside modified) 0.1mg/0.5mL dose disp for inj MDV (Moderna)"
   ),
   
@@ -189,14 +188,21 @@ study=StudyDefinition(
     ),
 
     # IMD
-    imd=patients.address_as_of(
-                    "elig_date + 42 days",
-                    returning="index_of_multiple_deprivation",
-                    round_to_nearest=100,
-                    return_expectations={
-                        "category": {"ratios": {c: 1/320 for c in range(100,32100,100)}}
-                        }
-                    ),
+    imd = patients.categorised_as(
+        {
+            "Unknown": "DEFAULT",
+            "1 (most deprived)": "imd_num >= 0 AND imd_num < 32844*1/5",
+            "2": "imd_num >= 32844*1/5 AND imd_num < 32844*2/5",
+            "3": "imd_num >= 32844*2/5 AND imd_num < 32844*3/5",
+            "4": "imd_num >= 32844*3/5 AND imd_num < 32844*4/5",
+            "5 (least deprived)": "imd_num >= 32844*4/5 AND imd_num <= 32844",
+        },
+        imd_num = patients.address_as_of(
+            "elig_date + 42 days",
+            returning="index_of_multiple_deprivation",
+            round_to_nearest=100,
+        )
+    ),
 
     # medically housebound
     housebound = patients.satisfying(
