@@ -355,29 +355,6 @@ jcvi_variables = dict(
         return_expectations={"incidence": 0.01},
     ),
 
-    # preg_group=patients.satisfying(
-    #     """
-    #     (preg_36wks_date AND sex = 'F' AND age_1 < 50) AND
-    #     (pregdel_pre_date <= preg_36wks_date OR NOT pregdel_pre_date)
-    #     """,
-    #     # date of last pregnancy code in 36 weeks before ref_cev
-    #     preg_36wks_date=patients.with_these_clinical_events(
-    #         preg_primis,
-    #         returning="date",
-    #         find_last_match_in_period=True,
-    #         between=[days(ref_cev, -252), days(ref_cev, -1)],
-    #         date_format="YYYY-MM-DD",
-    #     ),
-    #     # date of last delivery code recorded in 36 weeks before elig_date
-    #     pregdel_pre_date=patients.with_these_clinical_events(
-    #         pregdel_primis,
-    #         returning="date",
-    #         find_last_match_in_period=True,
-    #         between=[days(ref_cev, -252), days(ref_cev, -1)],
-    #         date_format="YYYY-MM-DD",
-    #     ),
-    # ),
-
     # at risk group
     atrisk_group=patients.satisfying(
              """
