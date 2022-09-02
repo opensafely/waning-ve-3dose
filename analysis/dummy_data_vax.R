@@ -1,7 +1,7 @@
 ######################################
 
 # This script:
-# - creates dummy data for study_definition.py
+# - creates dummy data for study_definition_vax.py
 
 ######################################
 
