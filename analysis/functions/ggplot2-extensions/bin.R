@@ -3,7 +3,7 @@ bins <- function(breaks, closed = "right",
   if (!is.numeric(breaks)) {
     cli::cli_abort("{.arg breaks} must be a numeric vector")
   }
-  closed <- arg_match0(closed, c("right", "left"))
+  closed <- rlang::arg_match0(closed, c("right", "left"))
   
   breaks <- sort(breaks)
   # Adapted base::hist - this protects from floating point rounding errors
@@ -118,7 +118,7 @@ bin_breaks_bins <- function(x_range, bins = 30, center = NULL,
   bins <- as.integer(bins)
   if (bins < 1) {
     cli::cli_abort("{.arg bins} must be 1 or greater")
-  } else if (zero_range(x_range)) {
+  } else if (scales::zero_range(x_range)) {
     # 0.1 is the same width as the expansion `default_expansion()` gives for 0-width data
     width <- 0.1
   } else if (bins == 1) {
@@ -135,7 +135,7 @@ bin_breaks_bins <- function(x_range, bins = 30, center = NULL,
 
 # Compute bins ------------------------------------------------------------
 
-bin_vector <- function(x, bins, weight = NULL, pad = FALSE) {
+bin_vector_rounded <- function(x, bins, weight = NULL, pad = FALSE) {
   if (!is_bins(bins)) {
     cli::cli_abort("{.arg bins} must be a {.cls ggplot2_bins} object")
   }
@@ -158,6 +158,7 @@ bin_vector <- function(x, bins, weight = NULL, pad = FALSE) {
   
   bin_x <- (bins$breaks[-length(bins$breaks)] + bins$breaks[-1]) / 2
   bin_widths <- diff(bins$breaks)
+  bin_count <- roundmid_any(bin_count, to = 7)
   
   # Pad row of 0s at start and end
   if (pad) {
