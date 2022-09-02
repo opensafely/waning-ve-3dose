@@ -46,7 +46,7 @@
 #'   x data, whereas `stat_bin()` is suitable only for continuous x data.
 #' @export
 #' @rdname geom_histogram
-stat_bin <- function(mapping = NULL, data = NULL,
+stat_bin_rounded <- function(mapping = NULL, data = NULL,
                      geom = "bar", position = "stack",
                      ...,
                      binwidth = NULL,
@@ -64,7 +64,7 @@ stat_bin <- function(mapping = NULL, data = NULL,
   layer(
     data = data,
     mapping = mapping,
-    stat = StatBin,
+    stat = StatBinRounded,
     geom = geom,
     position = position,
     show.legend = show.legend,
@@ -88,23 +88,23 @@ stat_bin <- function(mapping = NULL, data = NULL,
 #' @format NULL
 #' @usage NULL
 #' @export
-StatBin <- ggproto("StatBin", Stat,
+StatBinRounded <- ggproto("StatBinRounded", Stat,
                    setup_params = function(self, data, params) {
                      params$flipped_aes <- has_flipped_aes(data, params, main_is_orthogonal = FALSE)
                      
                      has_x <- !(is.null(data$x) && is.null(params$x))
                      has_y <- !(is.null(data$y) && is.null(params$y))
                      if (!has_x && !has_y) {
-                       cli::cli_abort("{.fn {snake_class(self)}} requires an {.field x} or {.field y} aesthetic.")
+                       cli::cli_abort("{.fn {ggplot2:::snake_class(self)}} requires an {.field x} or {.field y} aesthetic.")
                      }
                      if (has_x && has_y) {
-                       cli::cli_abort("{.fn {snake_class(self)}} must only have an {.field x} {.emph or} {.field y} aesthetic.")
+                       cli::cli_abort("{.fn {ggplot2:::snake_class(self)}} must only have an {.field x} {.emph or} {.field y} aesthetic.")
                      }
                      
                      x <- flipped_names(params$flipped_aes)$x
-                     if (is_mapped_discrete(data[[x]])) {
+                     if (ggplot2:::is_mapped_discrete(data[[x]])) {
                        cli::cli_abort(c(
-                         "{.fn {snake_class(self)}} requires a continuous {.field {x}} aesthetic",
+                         "{.fn {ggplot2:::snake_class(self)}} requires a continuous {.field {x}} aesthetic",
                          "x" = "the {.field {x}} aesthetic is discrete.",
                          "i" = "Perhaps you want {.code stat=\"count\"}?"
                        ))
@@ -128,11 +128,11 @@ StatBin <- ggproto("StatBin", Stat,
                        lifecycle::deprecate_warn("2.1.0", "stat_bin(width)", "geom_bar()")
                      }
                      if (!is.null(params$boundary) && !is.null(params$center)) {
-                       cli::cli_abort("Only one of {.arg boundary} and {.arg center} may be specified in {.fn {snake_class(self)}}.")
+                       cli::cli_abort("Only one of {.arg boundary} and {.arg center} may be specified in {.fn {ggplot2:::snake_class(self)}}.")
                      }
                      
                      if (is.null(params$breaks) && is.null(params$binwidth) && is.null(params$bins)) {
-                       cli::cli_inform("{.fn {snake_class(self)}} using {.code bins = 30}. Pick better value with {.arg binwidth}.")
+                       cli::cli_inform("{.fn {ggplot2:::snake_class(self)}} using {.code bins = 30}. Pick better value with {.arg binwidth}.")
                        params$bins <- 30
                      }
                      
@@ -165,7 +165,7 @@ StatBin <- ggproto("StatBin", Stat,
                        bins <- bin_breaks_bins(scales[[x]]$dimension(), bins, center = center,
                                                boundary = boundary, closed = closed)
                      }
-                     bins <- bin_vector(data[[x]], bins, weight = data$weight, pad = pad)
+                     bins <- bin_vector_rounded(data[[x]], bins, weight = data$weight, pad = pad)
                      bins$flipped_aes <- flipped_aes
                      flip_data(bins, flipped_aes)
                    },
