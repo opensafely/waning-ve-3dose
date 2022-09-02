@@ -34,3 +34,30 @@ actions:
       highly_sensitive:
         cohort: output/input_vax.feather
 
+  ## #################################### 
+  ## preprocessing 
+  ## #################################### 
+  ## process data from study_definition 
+
+  data_input_process:
+    run: r:latest analysis/preprocess/input_vax.R
+    needs:
+    - dummy_data_vax
+    - generate_study_population
+    outputs:
+      highly_sensitive:
+        data_wide_vax_dates: output/data/data_wide_vax_dates.rds
+        data_processed: output/data/data_processed.rds
+      moderately_sensitive:
+        data_summaries: output/summaries/data_*.txt
+
+  ## apply eligiblity criteria from boxes a and b 
+
+  data_eligible_ab:
+    run: r:latest analysis/preprocess/data_eligible_ab.R
+    needs:
+    - data_input_process
+    outputs:
+      highly_sensitive:
+        data_eligible_a: output/data/data_eligible_a.rds
+
