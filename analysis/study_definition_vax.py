@@ -191,11 +191,11 @@ study=StudyDefinition(
     imd = patients.categorised_as(
         {
             "Unknown": "DEFAULT",
-            "1 (most deprived)": "imd_num >= 0 AND imd_num < 32844*1/5",
+            "1 most deprived": "imd_num >= 0 AND imd_num < 32844*1/5",
             "2": "imd_num >= 32844*1/5 AND imd_num < 32844*2/5",
             "3": "imd_num >= 32844*2/5 AND imd_num < 32844*3/5",
             "4": "imd_num >= 32844*3/5 AND imd_num < 32844*4/5",
-            "5 (least deprived)": "imd_num >= 32844*4/5 AND imd_num <= 32844",
+            "5 least deprived": "imd_num >= 32844*4/5 AND imd_num <= 32844",
         },
         imd_num = patients.address_as_of(
             "elig_date + 42 days",
