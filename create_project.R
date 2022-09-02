@@ -385,13 +385,13 @@ actions_list <- splice(
     run = "r:latest analysis/preprocess/data_eligible_ab.R",
     needs = list("data_input_process"),
     highly_sensitive = list(
-      data_eligible_a = "output/data/data_eligible_a.rds",
-      data_eligible_b = "output/data/data_eligible_b.rds"
-    ),
-    moderately_sensitive = list(
-      eligibility_count_ab = "output/tables/eligibility_count_ab.csv"#,
-      # group_age_ranges = "output/lib/group_age_ranges.csv"
-    )
+      data_eligible_a = "output/data/data_eligible_a.rds"#,
+      # data_eligible_b = "output/data/data_eligible_b.rds"
+    )#,
+    # moderately_sensitive = list(
+    #   eligibility_count_ab = "output/tables/eligibility_count_ab.csv",
+    #   group_age_ranges = "output/lib/group_age_ranges.csv"
+    # )
   )#,
   # 
   # comment("####################################", 
