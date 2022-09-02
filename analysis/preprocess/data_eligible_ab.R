@@ -178,46 +178,46 @@ readr::write_rds(data_eligible_a %>%
 #   here::here("output", "tables", "eligibility_count_ab.csv"))
 # 
 # ################################################################################
-# # jcvi_group, elig_date combos ----
-# fix_age <- data_processed %>%
-#   mutate(age = if_else(
-#     jcvi_group %in% c("10", "11", "12"),
-#     age_2,
-#     age_1)) %>%
-#   select(patient_id, age)
-# 
-# group_age_ranges <- data_eligible_b %>%
-#   left_join(fix_age, 
-#             by = "patient_id") %>%
-#   group_by(jcvi_group, elig_date) %>%
-#   summarise(min = min(age), max = max(age), .groups = "keep") %>%
-#   ungroup() 
-# 
-# # check none of the min / max correspond to < 5 individuals
-# check <- function(x) {
-#   fix_age %>%
-#     filter(age %in% x) %>%
-#     distinct(patient_id) %>%
-#     nrow(.)
-# }
-# 
-# group_age_ranges <- group_age_ranges %>%
-#   mutate(
-#     check_min = sapply(
-#       group_age_ranges$min,
-#       check),
-#     check_max = sapply(
-#       group_age_ranges$max,
-#       check)
-#   ) %>%
-#   mutate(age_range = case_when(
-#     max > 80 ~ glue("{min} +"),
-#     check_min < 5 | check_max < 5 ~ "[REDACTED]",
-#     TRUE ~ glue("{min} - {max}")
-#   )) %>%
-#   mutate(across(age_range, as.character)) %>%
-#   select(-ends_with(c("min", "max")))
-# 
-# # save as csv so that it can be checked
-# readr::write_csv(group_age_ranges,
-#                  here::here("output", "lib", "group_age_ranges.csv"))
+# jcvi_group, elig_date combos ----
+fix_age <- data_processed %>%
+  mutate(age = if_else(
+    jcvi_group %in% c("10", "11", "12"),
+    age_2,
+    age_1)) %>%
+  select(patient_id, age)
+
+group_age_ranges <- data_eligible_a %>%
+  left_join(fix_age,
+            by = "patient_id") %>%
+  group_by(jcvi_group, elig_date) %>%
+  summarise(min = min(age), max = max(age), .groups = "keep") %>%
+  ungroup()
+
+# check none of the min / max correspond to < 5 individuals
+check <- function(x) {
+  fix_age %>%
+    filter(age %in% x) %>%
+    distinct(patient_id) %>%
+    nrow(.)
+}
+
+group_age_ranges <- group_age_ranges %>%
+  mutate(
+    check_min = sapply(
+      group_age_ranges$min,
+      check),
+    check_max = sapply(
+      group_age_ranges$max,
+      check)
+  ) %>%
+  mutate(age_range = case_when(
+    max > 80 ~ glue::glue("{min}+"),
+    check_min < 5 | check_max < 5 ~ "[REDACTED]",
+    TRUE ~ glue::glue("{min} - {max}")
+  )) %>%
+  mutate(across(age_range, as.character)) %>%
+  select(-ends_with(c("min", "max")))
+
+# save as csv so that it can be checked
+readr::write_csv(group_age_ranges,
+                 here::here("output", "lib", "group_age_ranges.csv"))
