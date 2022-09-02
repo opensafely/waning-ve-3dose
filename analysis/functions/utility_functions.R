@@ -59,13 +59,37 @@ my_skim <- function(
     append = FALSE
   )
   
-  data_name <- deparse(substitute(.data))
+  # summarise factors as the printing is not very nice or flexible in skim
+  summarise_factor <- function(var) {
+    
+    .data %>%
+      group_by(across(all_of(var))) %>%
+      count() %>%
+      ungroup() %>%
+      mutate(across(n, ~roundmid_any(.x, to = 7))) %>%
+      mutate(percent = round(100*n/sum(n),2)) %>%
+      knitr::kable(format = "pipe") %>% 
+      print()
+    
+  }
   
-  #### add code to summarise counts across factor levels, as this gets truncated in skimr
+  vars <- .data %>% 
+    select(-all_of(id_var)) %>% 
+    select(where(~ is.factor(.x) | is.character(.x))) %>%
+    names()
+  
+  data_name <- deparse(substitute(.data))
   
   options(width = 120)
   capture.output(
-    print(my_skim_fun(.data, -all_of(id_var))),
+    {
+      print(my_skim_fun(.data, -all_of(id_var)))
+      cat("\n")
+      cat("--- counts for factor and character variables ---")
+      for (v in vars) {
+        summarise_factor(v)
+      }
+    },
     file = here::here("output", "summaries", glue::glue("{data_name}.txt")),
     append = FALSE
   )
