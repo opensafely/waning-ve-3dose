@@ -388,7 +388,7 @@ actions_list <- splice(
       data_eligible_a = "output/data/data_eligible_a.rds"
     ),
     moderately_sensitive = list(
-      eligibility_count_a = "output/tables/eligibility_count_a.csv",
+      eligibility_count_a = "output/flow/eligibility_count_a.csv",
       group_age_ranges = "output/lib/group_age_ranges.csv"
     )
   ),

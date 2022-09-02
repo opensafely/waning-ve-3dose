@@ -24,8 +24,9 @@ eligibility_count <- tribble(
 )
 
 ################################################################################
-# create folder for metadata
+# create folder for metadata and flow data
 fs::dir_create(here::here("output", "lib"))
+fs::dir_create(here::here("output", "flow"))
 
 ################################################################################
 cat("#### apply exclusion criteria from box a to processed data ####\n")
@@ -102,7 +103,7 @@ readr::write_rds(data_eligible_a %>%
 # save eligibility count data
 readr::write_csv(
   eligibility_count,
-  here::here("output", "tables", "eligibility_count_a.csv"))
+  here::here("output", "flow", "eligibility_count_a.csv"))
 
 # ################################################################################
 # jcvi_group, elig_date combos ----
