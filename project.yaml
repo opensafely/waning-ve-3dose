@@ -1,12 +1,78 @@
 version: '3.0'
 
 expectations:
-  population_size: 1000
+
+  population_size: 100000
 
 actions:
 
+  ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  ## DO NOT EDIT project.yaml 
+  ## This file is created by create_project.R 
+  ## Edit and run create_project.R to update the project.yaml 
+  ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+  ## #################################### 
+  ## study definition 
+  ## #################################### 
+  ## generate dummy data for study_definition 
+
+  dummy_data_vax:
+    run: r:latest analysis/dummy_data_vax.R
+    outputs:
+      moderately_sensitive:
+        dummy_data: analysis/dummy_data_vax.feather
+
+  ## study definition 
+
   generate_study_population:
-    run: cohortextractor:latest generate_cohort --study-definition study_definition
+    run: cohortextractor:latest generate_cohort --study-definition study_definition_vax
+      --output-format feather
+    dummy_data_file: analysis/dummy_data_vax.feather
+    needs:
+    - dummy_data_vax
     outputs:
       highly_sensitive:
-        cohort: output/input.csv
+        cohort: output/input_vax.feather
+
+  ## #################################### 
+  ## preprocessing 
+  ## #################################### 
+  ## process data from study_definition 
+
+  data_input_process:
+    run: r:latest analysis/preprocess/input_vax.R
+    needs:
+    - dummy_data_vax
+    - generate_study_population
+    outputs:
+      highly_sensitive:
+        data_wide_vax_dates: output/data/data_wide_vax_dates.rds
+        data_processed: output/data/data_processed.rds
+      moderately_sensitive:
+        data_summaries: output/summaries/data_*.txt
+
+  ## apply eligiblity criteria from boxes a and b 
+
+  data_eligible_ab:
+    run: r:latest analysis/preprocess/data_eligible_ab.R
+    needs:
+    - data_input_process
+    outputs:
+      highly_sensitive:
+        data_eligible_a: output/data/data_eligible_a.rds
+      moderately_sensitive:
+        group_age_ranges: output/lib/group_age_ranges.csv
+
+  ## #################################### 
+  ## plot vaccination dates 
+  ## #################################### 
+
+  plot_vax_dates:
+    run: r:latest analysis/eda/plot_vax_dates.R
+    needs:
+    - data_input_process
+    - data_eligible_ab
+    outputs:
+      moderately_sensitive:
+        vax_date_plots: output/eda/vax_dates*.svg
+
