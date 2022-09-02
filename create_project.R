@@ -1,13 +1,13 @@
 library(tidyverse)
-library(yaml)
-library(here)
-library(glue)
+# library(yaml)
+# library(here)
+# library(glue)
 
 # create folder for metadata
 fs::dir_create(here::here("analysis", "lib"))
 
 ################################################################################
-K <- 12L # the number of comparison periods
+K <- 6L # the number of comparison periods
 
 study_parameters <-
   list(
@@ -20,9 +20,9 @@ study_parameters <-
     ref_ar = "2021-02-15", # reference date for calculating eligibility for phase 1 group 5 (at-risk)
     pandemic_start = "2020-01-01", # rough start date for pandemic in UK
     start_date = "2020-12-08", # start of phase 1 vaccinations
-    # start_date_pfizer = "2020-12-08",
-    # start_date_az = "2021-01-04",
-    # start_date_moderna = "2021-03-04",
+    start_date_pfizer = "2020-12-08",
+    start_date_az = "2021-01-04",
+    start_date_moderna = "2021-03-04",
     end_date = "2022-06-07", # day the study definition was run
     end_date_model = "2022-03-31" # based on availability of hospital data
   ) 
@@ -120,55 +120,55 @@ regions <- tribble(
 readr::write_csv(regions, here::here("analysis", "lib", "regions.csv"))
 
 ################################################################################
-# varlists
-
-# clinical variables for model
-clinical <- c(
-  "BMI" = "bmi",
-  "Learning disability" = "learndis",
-  "Serious mental illness" = "sev_mental",
-  "Morbidity count" = "multimorb",
-  "Flu vaccine in previous 5 years" = "flu_vaccine",
-  "Number of SARS-CoV-2 tests between 2020-05-18 and min_elig_date" = "test_hist_n",
-  "Pregnancy" = "pregnancy"
-)
-
-# extra clinical variables for summary table 
-# (those used to define morbidity count)
-multimorb <-c(
-  "Chronic respiratory disease" = "crd", 
-  "Chronic heart disease" = "chd", 
-  "Chronic liver disease" = "cld", 
-  "Chronic kidney disease" = "ckd", 
-  "Chronic neurological disease" = "cns",
-  "Diabetes" = "diabetes",
-  "Immunosuppression" = "immunosuppressed"
-)
-
-demographic <- c(
-  "Age" = "age",
-  "Sex" = "sex",
-  "IMD" = "imd",
-  "Ethnicity" = "ethnicity"
-)
-
-readr::write_rds(
-  list(demographic = demographic, clinical = clinical, multimorb = multimorb),
-  here::here("analysis", "lib", "model_varlist.rds")
-)
+# # varlists
+# 
+# # clinical variables for model
+# clinical <- c(
+#   "BMI" = "bmi",
+#   "Learning disability" = "learndis",
+#   "Serious mental illness" = "sev_mental",
+#   "Morbidity count" = "multimorb",
+#   "Flu vaccine in previous 5 years" = "flu_vaccine",
+#   "Number of SARS-CoV-2 tests between 2020-05-18 and min_elig_date" = "test_hist_n",
+#   "Pregnancy" = "pregnancy"
+# )
+# 
+# # extra clinical variables for summary table 
+# # (those used to define morbidity count)
+# multimorb <-c(
+#   "Chronic respiratory disease" = "crd", 
+#   "Chronic heart disease" = "chd", 
+#   "Chronic liver disease" = "cld", 
+#   "Chronic kidney disease" = "ckd", 
+#   "Chronic neurological disease" = "cns",
+#   "Diabetes" = "diabetes",
+#   "Immunosuppression" = "immunosuppressed"
+# )
+# 
+# demographic <- c(
+#   "Age" = "age",
+#   "Sex" = "sex",
+#   "IMD" = "imd",
+#   "Ethnicity" = "ethnicity"
+# )
+# 
+# readr::write_rds(
+#   list(demographic = demographic, clinical = clinical, multimorb = multimorb),
+#   here::here("analysis", "lib", "model_varlist.rds")
+# )
 
 ################################################################################
-# strata vars for cox model ----
-strata_vars <- c(
-  "Region" = "region",
-  "JCVI group" = "jcvi_group",
-  "Date of eligibility for 1st dose" = "elig_date"
-)
-
-readr::write_rds(
-  strata_vars,
-  here::here("analysis", "lib", "strata_vars.rds")
-)
+# # strata vars for cox model ----
+# strata_vars <- c(
+#   "Region" = "region",
+#   "JCVI group" = "jcvi_group",
+#   "Date of eligibility for 1st dose" = "elig_date"
+# )
+# 
+# readr::write_rds(
+#   strata_vars,
+#   here::here("analysis", "lib", "strata_vars.rds")
+# )
 
 ################################################################################
 # subgroups ----
@@ -185,55 +185,37 @@ readr::write_rds(
 )
 
 ################################################################################
-# all outcomes:
-outcomes <- c(
-  "Any SARS-CoV-2 test" = "anytest", 
-  "Positive SARS-CoV-2 test" = "postest", 
-  "COVID-19 hospitalisation (APCS)" = "covidadmitted",
-  "COVID-19 hospitalisation (ECDS)" = "covidemergency",
-  "COVID-19 death" = "coviddeath", 
-  "Non-COVID-19 death" = "noncoviddeath")
-
-readr::write_rds(
-  outcomes,
-  here::here("analysis", "lib", "outcomes.rds")
-)
-
-outcomes_model <- outcomes
-readr::write_rds(
-  outcomes,
-  here::here("analysis", "lib", "outcomes_model.rds")
-)
-
-outcomes <- outcomes[-4]
-outcomes_model <- outcomes
+# # all outcomes:
+# outcomes <- c(
+#   "Any SARS-CoV-2 test" = "anytest", 
+#   "Positive SARS-CoV-2 test" = "postest", 
+#   "COVID-19 hospitalisation (APCS)" = "covidadmitted",
+#   "COVID-19 hospitalisation (ECDS)" = "covidemergency",
+#   "COVID-19 death" = "coviddeath", 
+#   "Non-COVID-19 death" = "noncoviddeath")
+# 
+# readr::write_rds(
+#   outcomes,
+#   here::here("analysis", "lib", "outcomes.rds")
+# )
+# 
+# outcomes_model <- outcomes
+# readr::write_rds(
+#   outcomes,
+#   here::here("analysis", "lib", "outcomes_model.rds")
+# )
+# 
+# outcomes <- outcomes[-4]
+# outcomes_model <- outcomes
 
 ################################################################################
-comparisons <- c("BNT162b2", "ChAdOx1", "both")
-readr::write_rds(
-  comparisons,
-  here::here("analysis", "lib", "comparisons.rds")
-)
-
-comparisons <- comparisons[-3]
-
-# ################################################################################
-# # create bash script for generating study definitions from template
-# create_study_definitions <- 
-#   str_c("# Run this script to create a study_definition for each k",
-#         "",
-#         str_c("for i in {1..",K,"}; do"),
-#         "sed -e \"s;%placeholder_k%;$i;g\" ./analysis/study_definition_k.py > ./analysis/study_definition_$i.py;",
-#         "done;", sep = "\n")
+# comparisons <- c("BNT162b2", "ChAdOx1", "both")
+# readr::write_rds(
+#   comparisons,
+#   here::here("analysis", "lib", "comparisons.rds")
+# )
 # 
-# create_study_definitions %>%
-#   writeLines(here::here("analysis/create_study_definitions.sh"))
-# 
-# # create study definitions from template_study_definition.py
-# check_create <- try(processx::run(command="bash", args= "analysis/create_study_definitions.sh"))
-# 
-# if (inherits(check_create, "try-error")) stop("Study definitions not created.")
-
+# comparisons <- comparisons[-3]
 
 ################################################################################
 # create action functions ----
@@ -297,7 +279,7 @@ apply_model_fun <- function(
   subgroup <- subgroups[subgroup_label]
   
   splice(
-    comment(glue("{comparison}; {subgroup_label}; {outcome}")),
+    comment(glue::glue("{comparison}; {subgroup_label}; {outcome}")),
     comment("preflight checks"),
     action(
       name = glue("preflight_{comparison}_{subgroup_label}_{outcome}"),
@@ -305,10 +287,10 @@ apply_model_fun <- function(
       arguments = c(comparison, subgroup_label, outcome),
       needs = list(
         "data_covariates_process", 
-        glue("data_tte_process_{comparison}")
+        glue::glue("data_tte_process_{comparison}")
         ),
       highly_sensitive = list(
-        model_input = glue("output/preflight/data/model_input_{comparison}_{subgroup_label}_{outcome}*.rds")
+        model_input = glue::glue("output/preflight/data/model_input_{comparison}_{subgroup_label}_{outcome}*.rds")
       ),
       moderately_sensitive = list(
         # eventcheck_table = glue("output/preflight/tables/eventcheck_{comparison}_{subgroup_label}_{outcome}*.html"),
@@ -317,19 +299,19 @@ apply_model_fun <- function(
     ),
     comment("apply cox model"),
     action(
-      name = glue("apply_model_cox_{comparison}_{subgroup_label}_{outcome}"),
+      name = glue::glue("apply_model_cox_{comparison}_{subgroup_label}_{outcome}"),
       run = "r:latest analysis/comparisons/apply_model_cox_update.R",
       arguments = c(comparison, subgroup_label, outcome),
       needs = list(
         glue("preflight_{comparison}_{subgroup_label}_{outcome}")),
       highly_sensitive = list(
-        modelnumber = glue("output/models_cox/data/model*_{comparison}_{subgroup_label}_{outcome}*.rds"),
-        model_tidy_rds = glue("output/models_cox/data/modelcox_tidy_{comparison}_{subgroup_label}_{outcome}*.rds"),
-        model_glance_rds = glue("output/models_cox/data/modelcox_glance_{comparison}_{subgroup_label}_{outcome}*.rds")
+        modelnumber = glue::glue("output/models_cox/data/model*_{comparison}_{subgroup_label}_{outcome}*.rds"),
+        model_tidy_rds = glue::glue("output/models_cox/data/modelcox_tidy_{comparison}_{subgroup_label}_{outcome}*.rds"),
+        model_glance_rds = glue::glue("output/models_cox/data/modelcox_glance_{comparison}_{subgroup_label}_{outcome}*.rds")
       ),
       moderately_sensitive = list(
-        model_tidy_txt = glue("output/models_cox/temp/modelcox_tidy_{comparison}_{subgroup_label}_{outcome}.txt"),
-        model_glance_txt = glue("output/models_cox/temp/modelcox_glance_{comparison}_{subgroup_label}_{outcome}.txt")
+        model_tidy_txt = glue::glue("output/models_cox/temp/modelcox_tidy_{comparison}_{subgroup_label}_{outcome}.txt"),
+        model_glance_txt = glue::glue("output/models_cox/temp/modelcox_glance_{comparison}_{subgroup_label}_{outcome}.txt")
       )
     )
     
@@ -379,24 +361,24 @@ actions_list <- splice(
     )
   ),
   
-  comment("####################################", 
+  comment("####################################",
           "preprocessing",
           "####################################"),
-  
+
   comment("process data from study_definition"),
   action(
     name = "data_input_process",
-    run = "r:latest analysis/preprocess/data_input_process.R",
+    run = "r:latest analysis/preprocess/input_vax.R",
     needs = list("dummy_data_vax", "generate_study_population"),
     highly_sensitive = list(
       data_wide_vax_dates = "output/data/data_wide_vax_dates.rds",
       data_processed = "output/data/data_processed.rds"
     ),
     moderately_sensitive = list(
-      data_properties = "output/tables/data_*_tabulate.txt"
+      data_summaries = "output/summaries/data_*.txt"
     )
   ),
-  
+
   comment("apply eligiblity criteria from boxes a and b"),
   action(
     name = "data_eligible_ab",
@@ -407,283 +389,283 @@ actions_list <- splice(
       data_eligible_b = "output/data/data_eligible_b.rds"
     ),
     moderately_sensitive = list(
-      eligibility_count_ab = "output/tables/eligibility_count_ab.csv",
-      group_age_ranges = "output/lib/group_age_ranges.csv"
+      eligibility_count_ab = "output/tables/eligibility_count_ab.csv"#,
+      # group_age_ranges = "output/lib/group_age_ranges.csv"
     )
-  ),
-  
-  comment("####################################", 
-          "second_vax_period",
-          "####################################"),
-  comment("identify second vaccination time periods"),
-  comment("create dataset for identifying second vaccination time periods"),
-  action(
-    name = "data_2nd_vax_dates",
-    run = "r:latest analysis/second_vax_period/data_2nd_vax_dates.R",
-    needs = list("data_input_process", "data_eligible_ab"),
-    highly_sensitive = list(
-      data_vax_plot = "output/second_vax_period/data/data_vax_plot.rds",
-      second_vax_period_dates_rds = "output/second_vax_period/data/second_vax_period_dates.rds"
-    ),
-    moderately_sensitive = list(
-      second_vax_period_dates_txt = "output/second_vax_period/tables/second_vax_period_dates.txt"
-    )
-  ),
-  
-  comment("plot second vaccination time periods"),
-  action(
-    name = "plot_2nd_vax_dates",
-    run = "r:latest analysis/second_vax_period/plot_2nd_vax_dates.R",
-    needs = list("data_eligible_ab", "data_2nd_vax_dates"),
-    moderately_sensitive = list(
-      plots_by_region = "output/second_vax_period/images/plot_by_region_*.png",
-      plots_by_region_data = "output/second_vax_period/images/plot_by_region_*.txt"
-    )
-  ),
-  
-  comment("apply eligiblity criteria from boxes c, d and e"),
-  action(
-    name = "data_eligible_cde",
-    run = "r:latest analysis/preprocess/data_eligible_cde.R",
-    needs = list("data_input_process", "data_eligible_ab", "data_2nd_vax_dates"),
-    highly_sensitive = list(
-      data_eligible_e_vax = "output/data/data_eligible_e_vax.rds",
-      data_eligible_e_unvax = "output/data/data_eligible_e_unvax.rds",
-      data_eligible_e = "output/data/data_eligible_e.csv"
-    ),
-    moderately_sensitive = list(
-      eligibility_count_cde = "output/tables/eligibility_count_cde.csv"
-    )
-  ),
-  
-  comment("####################################", 
-          "study definition covs",
-          "####################################"),
-  
-  action(
-    name = "generate_covs_data",
-    run = "cohortextractor:latest generate_cohort --study-definition study_definition_covs --output-format feather",
-    needs = list("data_eligible_cde"),
-    highly_sensitive = list(
-      cohort = "output/input_covs.feather"
-    )
-  ),
-  
-  comment("####################################", 
-          "process covariates data",
-          "####################################"),
-  
-  comment("(includes anytest_date)"),
-  action(
-    name = "data_covariates_process",
-    run = "r:latest analysis/preprocess/data_covariates_process.R",
-    needs = splice(
-      "data_input_process", 
-      "data_eligible_cde", 
-      "generate_covs_data"
-      ),
-    moderately_sensitive = list(
-      data_min_max_fu_csv = "output/lib/data_min_max_fu.csv"
-    ),
-    highly_sensitive = list(
-      data_covariates = "output/data/data_all.rds"
-    )
-  ),
-  
-  # comment("min and max follow-up dates for plots"),
+  )#,
+  # 
+  # comment("####################################", 
+  #         "second_vax_period",
+  #         "####################################"),
+  # comment("identify second vaccination time periods"),
+  # comment("create dataset for identifying second vaccination time periods"),
   # action(
-  #   name = "data_min_max_fu",
-  #   run = "r:latest analysis/comparisons/data_min_max_fu.R",
-  #   needs = list("data_covariates_process"),
+  #   name = "data_2nd_vax_dates",
+  #   run = "r:latest analysis/second_vax_period/data_2nd_vax_dates.R",
+  #   needs = list("data_input_process", "data_eligible_ab"),
+  #   highly_sensitive = list(
+  #     data_vax_plot = "output/second_vax_period/data/data_vax_plot.rds",
+  #     second_vax_period_dates_rds = "output/second_vax_period/data/second_vax_period_dates.rds"
+  #   ),
   #   moderately_sensitive = list(
-  #     data_min_max_fu_csv = "output/lib/data_min_max_fu.csv"
+  #     second_vax_period_dates_txt = "output/second_vax_period/tables/second_vax_period_dates.txt"
   #   )
   # ),
-  
-  comment("####################################",
-          "subsequent vaccination", 
-          "####################################"),
-  
-  comment("plot cumulative incidence of subsequent vaccination"),
-  action(
-    name = "plot_cumulative_incidence",
-    run = "r:latest analysis/subsequent_vax/plot_cumulative_incidence.R",
-    needs = list("data_covariates_process"),
-    moderately_sensitive = list(
-      ci_vax = "output/subsequent_vax/images/ci_vax.png",
-      survtable = "output/subsequent_vax/tables/survtable_redacted.csv"
-    )
-  ),
-  
-  comment("####################################",
-          "table 1 for report", 
-          "####################################"),
-  comment("create table 1 for all and for each subgroup"),
-  action(
-    name = "table1",
-    run = "r:latest analysis/report/table1.R",
-    needs = list(
-      "data_eligible_ab",
-      "data_eligible_cde",
-      "data_covariates_process"
-      ),
-    moderately_sensitive = list(
-      eligibility_count_p1 = "output/tables/eligibility_count_p1.csv",
-      eligibility_count_all = "output/tables/eligibility_count_all.csv",
-      table_csv = "output/report/tables/table1_*_REDACTED.csv",
-      table_html = "output/report/tables/table1_*_REDACTED.html"
-    )
-  ),
-  
-  comment("####################################",
-          "process time to event data", 
-          "####################################"),
-  
-  comment(glue("process tte data")),
-  splice(unlist(lapply(
-    comparisons,
-    function(x)
-      action(
-        name = glue("data_tte_process_{x}"),
-        run = "r:latest analysis/comparisons/data_tte_process.R",
-        arguments = x,
-        needs = list("data_covariates_process"),
-        highly_sensitive = list(
-          data_tte_brand_outcome = glue("output/tte/data/data_tte_{x}*.rds")
-        ),
-        moderately_sensitive = list(
-          event_counts_csv = glue("output/tte/data/event_counts_{x}.csv"),
-          event_counts_txt = glue("output/tte/tables/event_counts_{x}.txt")
-        )
-      )
-  ), recursive = FALSE)),
-  
-
-  comment("check distribution of follow-up time in relation to variant dates"),
-  splice(
-    unlist(
-      lapply(
-        seq_along(subgroups),
-        function(x)
-          action(
-            name = glue("check_fu_{x}"),
-            run = "r:latest analysis/comparisons/check_fu.R",
-            arguments = x,
-            needs = list(
-              "data_covariates_process", 
-              "data_tte_process_BNT162b2", 
-              "data_tte_process_ChAdOx1"
-              ),
-            moderately_sensitive = list(
-              check_fu_plot = glue("output/tte/images/check_fu_{x}.png"),
-              check_fu_plot_data = glue("output/tte/images/check_fu_{x}.csv")
-            )
-          )
-      ),
-      recursive = FALSE
-    )
-  ),
-  
-  comment("####################################",
-          "apply models", 
-          "####################################"),
-  splice(
-    # over subgroups
-    unlist(lapply(
-      comparisons,
-
-      function(x) {
-        if (!(x %in% "BNT162b2")) {
-          ys <- subgroup_labels[subgroups != "18-39 years"]
-        } else {
-          ys <- subgroup_labels
-        }
-        unlist(lapply(
-          ys,
-          function(y)
-            splice(
-            unlist(lapply(
-              unname(outcomes_model),
-
-              function(z)
-              apply_model_fun(
-                comparison = x,
-                subgroup_label = y,
-                outcome = z)
-            ),
-            recursive = FALSE)
-            )
-          
-        ),
-        recursive = FALSE)
-      }
-    ), recursive = FALSE)
-  ),
-  
-  comment("combine all estimates for release"),
-  action(
-    name = glue("combine_estimates"),
-    run = "r:latest analysis/comparisons/combine_estimates.R",
-    needs = splice(
-      lapply(
-        comparisons[comparisons != "both"], 
-        function(x) glue("data_tte_process_{x}")
-        ),
-      as.list(unlist(lapply(
-        comparisons,
-        function(x)
-        {
-          if (x %in% c("ChAdOx1", "both")) {
-            ys <- subgroup_labels[subgroups != "18-39 years"]
-          } else {
-            ys <- subgroup_labels
-          }
-          unlist(lapply(
-            ys,
-            function(y)
-              unlist(lapply(
-                unname(outcomes_model),
-                function(z)
-                  glue("apply_model_cox_{x}_{y}_{z}")
-              ), recursive = FALSE)
-          ), recursive = FALSE)
-        }
-      ), recursive = FALSE))),
-    moderately_sensitive = list(
-      event_counts_all = glue("output/release_objects/event_counts*.csv"),
-      estimates_all = glue("output/release_objects/estimates*.csv")
-    )
-  ),
-  
-  comment("####################################",
-          "tables for appendix", 
-          "####################################"),
-  action(
-    name = "appendix_table",
-    run = "r:latest analysis/post_release/appendix_table.R",
-    needs = list(
-      "combine_estimates"
-      ),
-    moderately_sensitive = list(
-      plot_check = "output/release_objects/appendix_table*.csv"
-    )
-  ),
-  
-  comment("####################################",
-          "plot for manuscript", 
-          "####################################"),
-  action(
-    name = "plot_cox_all",
-    run = "r:latest analysis/post_release/plot_cox_all.R",
-    needs = splice(
-      "combine_estimates",
-      "plot_cumulative_incidence",
-      lapply(1:4, function(x) glue("check_fu_{x}"))
-    ),
-    moderately_sensitive = list(
-      hr_vax_ci = "output/release_objects/images/hr_vax_ci.png"
-    )
-  )
+  # 
+  # comment("plot second vaccination time periods"),
+  # action(
+  #   name = "plot_2nd_vax_dates",
+  #   run = "r:latest analysis/second_vax_period/plot_2nd_vax_dates.R",
+  #   needs = list("data_eligible_ab", "data_2nd_vax_dates"),
+  #   moderately_sensitive = list(
+  #     plots_by_region = "output/second_vax_period/images/plot_by_region_*.png",
+  #     plots_by_region_data = "output/second_vax_period/images/plot_by_region_*.txt"
+  #   )
+  # ),
+  # 
+  # comment("apply eligiblity criteria from boxes c, d and e"),
+  # action(
+  #   name = "data_eligible_cde",
+  #   run = "r:latest analysis/preprocess/data_eligible_cde.R",
+  #   needs = list("data_input_process", "data_eligible_ab", "data_2nd_vax_dates"),
+  #   highly_sensitive = list(
+  #     data_eligible_e_vax = "output/data/data_eligible_e_vax.rds",
+  #     data_eligible_e_unvax = "output/data/data_eligible_e_unvax.rds",
+  #     data_eligible_e = "output/data/data_eligible_e.csv"
+  #   ),
+  #   moderately_sensitive = list(
+  #     eligibility_count_cde = "output/tables/eligibility_count_cde.csv"
+  #   )
+  # ),
+  # 
+  # comment("####################################", 
+  #         "study definition covs",
+  #         "####################################"),
+  # 
+  # action(
+  #   name = "generate_covs_data",
+  #   run = "cohortextractor:latest generate_cohort --study-definition study_definition_covs --output-format feather",
+  #   needs = list("data_eligible_cde"),
+  #   highly_sensitive = list(
+  #     cohort = "output/input_covs.feather"
+  #   )
+  # ),
+  # 
+  # comment("####################################", 
+  #         "process covariates data",
+  #         "####################################"),
+  # 
+  # comment("(includes anytest_date)"),
+  # action(
+  #   name = "data_covariates_process",
+  #   run = "r:latest analysis/preprocess/data_covariates_process.R",
+  #   needs = splice(
+  #     "data_input_process", 
+  #     "data_eligible_cde", 
+  #     "generate_covs_data"
+  #     ),
+  #   moderately_sensitive = list(
+  #     data_min_max_fu_csv = "output/lib/data_min_max_fu.csv"
+  #   ),
+  #   highly_sensitive = list(
+  #     data_covariates = "output/data/data_all.rds"
+  #   )
+  # ),
+  # 
+  # # comment("min and max follow-up dates for plots"),
+  # # action(
+  # #   name = "data_min_max_fu",
+  # #   run = "r:latest analysis/comparisons/data_min_max_fu.R",
+  # #   needs = list("data_covariates_process"),
+  # #   moderately_sensitive = list(
+  # #     data_min_max_fu_csv = "output/lib/data_min_max_fu.csv"
+  # #   )
+  # # ),
+  # 
+  # comment("####################################",
+  #         "subsequent vaccination", 
+  #         "####################################"),
+  # 
+  # comment("plot cumulative incidence of subsequent vaccination"),
+  # action(
+  #   name = "plot_cumulative_incidence",
+  #   run = "r:latest analysis/subsequent_vax/plot_cumulative_incidence.R",
+  #   needs = list("data_covariates_process"),
+  #   moderately_sensitive = list(
+  #     ci_vax = "output/subsequent_vax/images/ci_vax.png",
+  #     survtable = "output/subsequent_vax/tables/survtable_redacted.csv"
+  #   )
+  # ),
+  # 
+  # comment("####################################",
+  #         "table 1 for report", 
+  #         "####################################"),
+  # comment("create table 1 for all and for each subgroup"),
+  # action(
+  #   name = "table1",
+  #   run = "r:latest analysis/report/table1.R",
+  #   needs = list(
+  #     "data_eligible_ab",
+  #     "data_eligible_cde",
+  #     "data_covariates_process"
+  #     ),
+  #   moderately_sensitive = list(
+  #     eligibility_count_p1 = "output/tables/eligibility_count_p1.csv",
+  #     eligibility_count_all = "output/tables/eligibility_count_all.csv",
+  #     table_csv = "output/report/tables/table1_*_REDACTED.csv",
+  #     table_html = "output/report/tables/table1_*_REDACTED.html"
+  #   )
+  # ),
+  # 
+  # comment("####################################",
+  #         "process time to event data", 
+  #         "####################################"),
+  # 
+  # comment(glue("process tte data")),
+  # splice(unlist(lapply(
+  #   comparisons,
+  #   function(x)
+  #     action(
+  #       name = glue::glue("data_tte_process_{x}"),
+  #       run = "r:latest analysis/comparisons/data_tte_process.R",
+  #       arguments = x,
+  #       needs = list("data_covariates_process"),
+  #       highly_sensitive = list(
+  #         data_tte_brand_outcome = glue::glue("output/tte/data/data_tte_{x}*.rds")
+  #       ),
+  #       moderately_sensitive = list(
+  #         event_counts_csv = glue("output/tte/data/event_counts_{x}.csv"),
+  #         event_counts_txt = glue("output/tte/tables/event_counts_{x}.txt")
+  #       )
+  #     )
+  # ), recursive = FALSE)),
+  # 
+  # 
+  # comment("check distribution of follow-up time in relation to variant dates"),
+  # splice(
+  #   unlist(
+  #     lapply(
+  #       seq_along(subgroups),
+  #       function(x)
+  #         action(
+  #           name = glue::glue("check_fu_{x}"),
+  #           run = "r:latest analysis/comparisons/check_fu.R",
+  #           arguments = x,
+  #           needs = list(
+  #             "data_covariates_process", 
+  #             "data_tte_process_BNT162b2", 
+  #             "data_tte_process_ChAdOx1"
+  #             ),
+  #           moderately_sensitive = list(
+  #             check_fu_plot = glue::glue("output/tte/images/check_fu_{x}.png"),
+  #             check_fu_plot_data = glue::glue("output/tte/images/check_fu_{x}.csv")
+  #           )
+  #         )
+  #     ),
+  #     recursive = FALSE
+  #   )
+  # ),
+  # 
+  # comment("####################################",
+  #         "apply models", 
+  #         "####################################"),
+  # splice(
+  #   # over subgroups
+  #   unlist(lapply(
+  #     comparisons,
+  # 
+  #     function(x) {
+  #       if (!(x %in% "BNT162b2")) {
+  #         ys <- subgroup_labels[subgroups != "18-39 years"]
+  #       } else {
+  #         ys <- subgroup_labels
+  #       }
+  #       unlist(lapply(
+  #         ys,
+  #         function(y)
+  #           splice(
+  #           unlist(lapply(
+  #             unname(outcomes_model),
+  # 
+  #             function(z)
+  #             apply_model_fun(
+  #               comparison = x,
+  #               subgroup_label = y,
+  #               outcome = z)
+  #           ),
+  #           recursive = FALSE)
+  #           )
+  #         
+  #       ),
+  #       recursive = FALSE)
+  #     }
+  #   ), recursive = FALSE)
+  # ),
+  # 
+  # comment("combine all estimates for release"),
+  # action(
+  #   name = glue::glue("combine_estimates"),
+  #   run = "r:latest analysis/comparisons/combine_estimates.R",
+  #   needs = splice(
+  #     lapply(
+  #       comparisons[comparisons != "both"], 
+  #       function(x) glue::glue("data_tte_process_{x}")
+  #       ),
+  #     as.list(unlist(lapply(
+  #       comparisons,
+  #       function(x)
+  #       {
+  #         if (x %in% c("ChAdOx1", "both")) {
+  #           ys <- subgroup_labels[subgroups != "18-39 years"]
+  #         } else {
+  #           ys <- subgroup_labels
+  #         }
+  #         unlist(lapply(
+  #           ys,
+  #           function(y)
+  #             unlist(lapply(
+  #               unname(outcomes_model),
+  #               function(z)
+  #                 glue::glue("apply_model_cox_{x}_{y}_{z}")
+  #             ), recursive = FALSE)
+  #         ), recursive = FALSE)
+  #       }
+  #     ), recursive = FALSE))),
+  #   moderately_sensitive = list(
+  #     event_counts_all = glue::glue("output/release_objects/event_counts*.csv"),
+  #     estimates_all = glue::glue("output/release_objects/estimates*.csv")
+  #   )
+  # ),
+  # 
+  # comment("####################################",
+  #         "tables for appendix", 
+  #         "####################################"),
+  # action(
+  #   name = "appendix_table",
+  #   run = "r:latest analysis/post_release/appendix_table.R",
+  #   needs = list(
+  #     "combine_estimates"
+  #     ),
+  #   moderately_sensitive = list(
+  #     plot_check = "output/release_objects/appendix_table*.csv"
+  #   )
+  # ),
+  # 
+  # comment("####################################",
+  #         "plot for manuscript", 
+  #         "####################################"),
+  # action(
+  #   name = "plot_cox_all",
+  #   run = "r:latest analysis/post_release/plot_cox_all.R",
+  #   needs = splice(
+  #     "combine_estimates",
+  #     "plot_cumulative_incidence",
+  #     lapply(1:4, function(x) glue::glue("check_fu_{x}"))
+  #   ),
+  #   moderately_sensitive = list(
+  #     hr_vax_ci = "output/release_objects/images/hr_vax_ci.png"
+  #   )
+  # )
   
 )
 
@@ -694,13 +676,13 @@ project_list <- splice(
 )
 
 ## convert list to yaml, reformat comments and whitespace,and output ----
-as.yaml(project_list, indent=2) %>%
+yaml::as.yaml(project_list, indent=2) %>%
   # convert comment actions to comments
   convert_comment_actions() %>%
   # add one blank line before level 1 and level 2 keys
   str_replace_all("\\\n(\\w)", "\n\n\\1") %>%
   str_replace_all("\\\n\\s\\s(\\w)", "\n\n  \\1") %>%
-  writeLines(here("project.yaml"))
+  writeLines(here::here("project.yaml"))
 
 
 ## grab all action names and send to a txt file
@@ -715,4 +697,4 @@ names(actions_list) %>% tibble(action=.) %>%
     sets = paste(action, collapse=" ")
   ) %>% pull(sets) %>%
   paste(collapse="\n") %>%
-  writeLines(here("actions.txt"))
+  writeLines(here::here("actions.txt"))
