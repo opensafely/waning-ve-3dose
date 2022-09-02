@@ -51,16 +51,17 @@ actions:
       moderately_sensitive:
         data_summaries: output/summaries/data_*.txt
 
-  ## apply eligiblity criteria from boxes a and b 
+  ## apply eligiblity criteria from box a 
 
-  data_eligible_ab:
-    run: r:latest analysis/preprocess/data_eligible_ab.R
+  data_eligible_a:
+    run: r:latest analysis/preprocess/data_eligible_a.R
     needs:
     - data_input_process
     outputs:
       highly_sensitive:
         data_eligible_a: output/data/data_eligible_a.rds
       moderately_sensitive:
+        eligibility_count_a: output/tables/eligibility_count_a.csv
         group_age_ranges: output/lib/group_age_ranges.csv
 
   ## #################################### 

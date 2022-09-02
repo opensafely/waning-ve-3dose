@@ -379,17 +379,16 @@ actions_list <- splice(
     )
   ),
 
-  comment("apply eligiblity criteria from boxes a and b"),
+  comment("apply eligiblity criteria from box a"),
   action(
-    name = "data_eligible_ab",
-    run = "r:latest analysis/preprocess/data_eligible_ab.R",
+    name = "data_eligible_a",
+    run = "r:latest analysis/preprocess/data_eligible_a.R",
     needs = list("data_input_process"),
     highly_sensitive = list(
       data_eligible_a = "output/data/data_eligible_a.rds"#,
-      # data_eligible_b = "output/data/data_eligible_b.rds"
     ),
     moderately_sensitive = list(
-      # eligibility_count_ab = "output/tables/eligibility_count_ab.csv",
+      eligibility_count_a = "output/tables/eligibility_count_a.csv",
       group_age_ranges = "output/lib/group_age_ranges.csv"
     )
   ),
