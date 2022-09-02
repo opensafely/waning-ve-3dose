@@ -387,30 +387,24 @@ actions_list <- splice(
     highly_sensitive = list(
       data_eligible_a = "output/data/data_eligible_a.rds"#,
       # data_eligible_b = "output/data/data_eligible_b.rds"
-    )#,
-    # moderately_sensitive = list(
-    #   eligibility_count_ab = "output/tables/eligibility_count_ab.csv",
-    #   group_age_ranges = "output/lib/group_age_ranges.csv"
-    # )
+    ),
+    moderately_sensitive = list(
+      # eligibility_count_ab = "output/tables/eligibility_count_ab.csv",
+      group_age_ranges = "output/lib/group_age_ranges.csv"
+    )
+  ),
+
+  comment("####################################",
+          "plot vaccination dates",
+          "####################################"),
+  action(
+    name = "plot_vax_dates",
+    run = "r:latest analysis/eda/plot_vax_dates.R",
+    needs = list("data_input_process", "data_eligible_ab"),
+    moderately_sensitive = list(
+      vax_date_plots = "output/eda/vax_dates*.svg"
+    )
   )#,
-  # 
-  # comment("####################################", 
-  #         "second_vax_period",
-  #         "####################################"),
-  # comment("identify second vaccination time periods"),
-  # comment("create dataset for identifying second vaccination time periods"),
-  # action(
-  #   name = "data_2nd_vax_dates",
-  #   run = "r:latest analysis/second_vax_period/data_2nd_vax_dates.R",
-  #   needs = list("data_input_process", "data_eligible_ab"),
-  #   highly_sensitive = list(
-  #     data_vax_plot = "output/second_vax_period/data/data_vax_plot.rds",
-  #     second_vax_period_dates_rds = "output/second_vax_period/data/second_vax_period_dates.rds"
-  #   ),
-  #   moderately_sensitive = list(
-  #     second_vax_period_dates_txt = "output/second_vax_period/tables/second_vax_period_dates.txt"
-  #   )
-  # ),
   # 
   # comment("plot second vaccination time periods"),
   # action(
