@@ -385,7 +385,7 @@ actions_list <- splice(
     run = "r:latest analysis/preprocess/data_eligible_a.R",
     needs = list("data_input_process"),
     highly_sensitive = list(
-      data_eligible_a = "output/data/data_eligible_a.rds"#,
+      data_eligible_a = "output/data/data_eligible_a.rds"
     ),
     moderately_sensitive = list(
       eligibility_count_a = "output/tables/eligibility_count_a.csv",
@@ -399,7 +399,7 @@ actions_list <- splice(
   action(
     name = "plot_vax_dates",
     run = "r:latest analysis/eda/plot_vax_dates.R",
-    needs = list("data_input_process", "data_eligible_ab"),
+    needs = list("data_input_process", "data_eligible_a"),
     moderately_sensitive = list(
       vax_date_plots = "output/eda/vax_dates*.svg"
     )

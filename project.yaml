@@ -72,7 +72,7 @@ actions:
     run: r:latest analysis/eda/plot_vax_dates.R
     needs:
     - data_input_process
-    - data_eligible_ab
+    - data_eligible_a
     outputs:
       moderately_sensitive:
         vax_date_plots: output/eda/vax_dates*.svg
