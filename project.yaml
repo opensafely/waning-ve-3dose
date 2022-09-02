@@ -60,4 +60,19 @@ actions:
     outputs:
       highly_sensitive:
         data_eligible_a: output/data/data_eligible_a.rds
+      moderately_sensitive:
+        group_age_ranges: output/lib/group_age_ranges.csv
+
+  ## #################################### 
+  ## plot vaccination dates 
+  ## #################################### 
+
+  plot_vax_dates:
+    run: r:latest analysis/eda/plot_vax_dates.R
+    needs:
+    - data_input_process
+    - data_eligible_ab
+    outputs:
+      moderately_sensitive:
+        vax_date_plots: output/eda/vax_dates*.svg
 
