@@ -58,8 +58,13 @@ data_processed_0 <- data_extract %>%
       TRUE ~ NA_character_
     ),
     # IMD quintile
-    imd = factor(
-      if_else(imd %in% "Unknown", NA_character_, imd)
+    imd = fct_case_when(
+      imd == "1 most deprived" ~ "1 most deprived",
+      imd == "2" ~ "2",
+      imd == "3" ~ "3",
+      imd == "4" ~ "4",
+      imd == "5" ~ "5 least deprived",
+      TRUE ~ NA_character_
     ),
     # Sex
     sex = fct_case_when(
