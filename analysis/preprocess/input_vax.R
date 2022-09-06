@@ -63,7 +63,7 @@ data_processed_0 <- data_extract %>%
       imd == "2" ~ "2",
       imd == "3" ~ "3",
       imd == "4" ~ "4",
-      imd == "5" ~ "5 least deprived",
+      imd == "5 least deprived" ~ "5 least deprived",
       TRUE ~ NA_character_
     ),
     # Sex
@@ -137,17 +137,10 @@ data_vax_wide <- local({
     arrange(patient_id, date)
   
   
-  data_vax <- data_processed_0 %>% # to get the unvaccinated
-    # filter(if_all(starts_with("covid_vax"), ~ is.na(.))) %>%
-    filter_at(vars(starts_with("covid_vax")), all_vars(is.na(.))) %>%
-    select(patient_id) %>% 
-    full_join(
-      data_vax_pfizer %>%
-        full_join(data_vax_az, by=c("patient_id", "date")) %>%
-        full_join(data_vax_moderna, by=c("patient_id", "date")) %>%
-        full_join(data_vax_disease, by=c("patient_id", "date")),
-      by = "patient_id"
-    ) %>%
+  data_vax <- data_vax_pfizer %>%
+    full_join(data_vax_az, by=c("patient_id", "date")) %>%
+    full_join(data_vax_moderna, by=c("patient_id", "date")) %>%
+    full_join(data_vax_disease, by=c("patient_id", "date")) %>%
     mutate(
       brand = fct_case_when(
         (!is.na(vax_az_index)) & is.na(vax_pfizer_index) & is.na(vax_moderna_index) ~ "az",
