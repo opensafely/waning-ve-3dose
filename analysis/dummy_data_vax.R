@@ -110,25 +110,46 @@ dummy_data_vax <- dummy_data_elig %>%
       x = c(NA_character_, "disease", "pfizer", "az", "moderna"), 
       size = nrow(.),
       replace = TRUE,
-      prob = c(0.28, 0.01, 0.35, 0.35, 0.01)
+      prob = c(0.28, 0.001, 0.35, 0.35, 0.019)
       ),
-    covid_vax_2_brand = if_else(covid_vax_1_brand=="disease",NA_character_,covid_vax_1_brand),
+    covid_vax_2_brand = if_else(
+      rbernoulli(n = nrow(.), p = 0.01), # if true then dose 2 different brand from dose 1
+      sample(
+        x = c(NA_character_, "disease", "pfizer", "az", "moderna"), 
+        size = nrow(.),
+        replace = TRUE,
+        prob = c(0.28, 0.001, 0.35, 0.35, 0.019)
+      ),
+      covid_vax_1_brand
+    ),
     covid_vax_3_brand = sample(
-      x = c(NA_character_, "pfizer", "az", "moderna"), 
+      x = c(NA_character_, "disease", "pfizer", "az", "moderna"), 
       size = nrow(.),
       replace = TRUE,
-      prob = c(0.09, 0.45, 0.01, 0.45)
+      prob = c(0.18, 0.001, 0.45, 0.01, 0.359)
     ),
     covid_vax_4_brand = sample(
-      x = c(NA_character_, "pfizer", "az", "moderna"), 
+      x = c(NA_character_, "disease", "pfizer", "az", "moderna"), 
       size = nrow(.),
       replace = TRUE,
-      prob = c(0.89, 0.05, 0.01, 0.05)
+      prob = c(0.89, 0.001, 0.04, 0.01, 0.059)
     )
   ) %>%
-  mutate(across(c(covid_vax_2_brand, covid_vax_3_brand, covid_vax_4_brand),
+  mutate(across(covid_vax_2_brand,
                 ~ if_else(
-                  is.na(covid_vax_1_brand),
+                  is.na(covid_vax_1_brand) | covid_vax_2_date <= covid_vax_1_date,
+                  NA_character_,
+                  .x
+                ))) %>%
+  mutate(across(covid_vax_3_brand,
+                ~ if_else(
+                  is.na(covid_vax_2_brand) | covid_vax_3_date <= covid_vax_2_date,
+                  NA_character_,
+                  .x
+                ))) %>%
+  mutate(across(covid_vax_4_brand,
+                ~ if_else(
+                  is.na(covid_vax_3_brand) | covid_vax_4_date <= covid_vax_3_date,
                   NA_character_,
                   .x
                 ))) %>%
@@ -142,24 +163,67 @@ dummy_data_vax_long <- dummy_data_vax %>%
   ) %>%
   filter(!is.na(brand)) 
 
-# check sequences
-# dummy_data_vax_long %>%
-#   group_by(patient_id) %>%
-#   summarise(brand_sequence = str_c(brand, collapse = ", ")) %>%
-#   ungroup() %>%
-#   group_by(brand_sequence) %>%
-#   count() %>%
-#   ungroup() %>%
-#   arrange(n) %>%
-#   print(n=Inf)
-
 # transform to wide
 dummy_data_vax_wide <- dummy_data_vax_long %>%
   pivot_wider(
     names_from = c(brand, sequence),
     values_from = "date",
     names_glue = "covid_vax_{brand}_{sequence}_date"
-  ) 
+  ) %>%
+  # randomly generate some duplicate brands
+  mutate(across(covid_vax_pfizer_1_date,
+                ~if_else(
+                  rbernoulli(n=length(.x), p = 0.001),
+                  covid_vax_az_1_date,
+                  .x
+                ))) %>%
+  # assign all branded dates to disease
+  mutate(across(covid_vax_disease_1_date,
+                ~if_else(
+                  is.na(.x),
+                  pmin(covid_vax_pfizer_1_date, covid_vax_az_1_date, covid_vax_moderna_1_date, na.rm = TRUE),
+                  .x
+                  ))) %>%
+  mutate(across(covid_vax_disease_2_date,
+                ~if_else(
+                  is.na(.x),
+                  pmin(covid_vax_pfizer_2_date, covid_vax_az_2_date, covid_vax_moderna_2_date, na.rm = TRUE),
+                  .x
+                ))) %>%
+  mutate(across(covid_vax_disease_3_date,
+                ~if_else(
+                  is.na(.x),
+                  pmin(covid_vax_pfizer_3_date, covid_vax_az_3_date, covid_vax_moderna_3_date, na.rm = TRUE),
+                  .x
+                ))) %>%
+  mutate(across(covid_vax_disease_4_date,
+                ~if_else(
+                  is.na(.x),
+                  pmin(covid_vax_pfizer_4_date, covid_vax_az_4_date, covid_vax_moderna_4_date, na.rm = TRUE),
+                  .x
+                ))) 
+
+
+# check branded vaccination data makes sense
+# dummy_data_vax_wide %>%
+#   select(-matches("covid_vax_disease_\\d_date")) %>%
+#   pivot_longer(
+#     cols = -patient_id,
+#     names_to = "brand",
+#     values_to = "date",
+#     names_pattern = "covid_vax_(.*)_\\d_date",
+#     values_drop_na = TRUE # removes missing doses
+#   ) %>%
+#   arrange(patient_id, date) %>%
+#   group_by(patient_id) %>%
+#   summarise(brand_sequence = str_c(brand, collapse = ", ")) %>%
+#   ungroup() %>%
+#   group_by(brand_sequence) %>%
+#   count() %>%
+#   ungroup() %>%
+#   mutate(percent = round(100*n/sum(n), 2)) %>%
+#   arrange(n) %>%
+#   print(n=Inf)
 
 # final dummy data
 dummy_data <- dummy_data_elig %>%
