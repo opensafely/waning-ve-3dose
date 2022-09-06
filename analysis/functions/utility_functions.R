@@ -66,7 +66,7 @@ my_skim <- function(
       group_by(across(all_of(var))) %>%
       count() %>%
       ungroup() %>%
-      mutate(across(n, ~roundmid_any(.x, to = 7))) %>%
+      # mutate(across(n, ~roundmid_any(.x, to = 7))) %>% # comment out as not releasing
       mutate(percent = round(100*n/sum(n),2)) %>%
       knitr::kable(format = "pipe") %>% 
       print()
