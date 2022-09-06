@@ -105,6 +105,17 @@ eligibility_count <- eligibility_count %>%
     stage = "a-ex"
   )
 
+# flagged as healthcare worker
+data_eligible_a <- data_eligible_a %>%
+  filter(!hscworker)
+
+eligibility_count <- eligibility_count %>%
+  add_row(
+    description = "Samples with record of being a health or social care worker removed.",
+    n =  n_distinct(data_eligible_a$patient_id),
+    stage = "a-ex"
+  )
+
 # duplicate those with brands for doses 1-3
 remove_duplicates <- data_vax_long %>%
   filter(brand %in% "duplicate" & dose <= 3) %>%
