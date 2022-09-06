@@ -12,7 +12,11 @@ source(here::here("analysis", "functions", "ggplot2-extensions", "stat-bin.R"))
 # see analysis/functions/ggplot2-extensions
 
 # test StatBinRounded
-# tibble(x = runif(n=1000, min=1, max=10)) %>%
+# tmp <- tibble(
+#   x = runif(n=1000, min=1, max=10), 
+#   group = sample(x = c("a","b"), size = 1000, replace = TRUE)
+#   ) 
+# tmp %>%
 #   ggplot(aes(x)) +
 #   geom_freqpoly(
 #     stat = StatBin,
@@ -23,8 +27,9 @@ source(here::here("analysis", "functions", "ggplot2-extensions", "stat-bin.R"))
 #     stat = StatBinRounded,
 #     binwidth = 1,
 #     colour = "blue"
-#   )
-
+#   ) +
+#   facet_grid(~group)
+  
 # read in data from those satisfying eligibility criteria A
 data_eligible_a <- readr::read_rds(here::here("output", "data", "data_eligible_a.rds")) %>%
   select(patient_id, jcvi_group, elig_date, region, ethnicity) %>%
@@ -44,19 +49,19 @@ regions_trunc <- str_trunc(regions, width = 12, side = "right")
 plot_data <- data_eligible_a %>%
   select(patient_id, jcvi_group, elig_date, region) %>%
   mutate(across(region, factor, levels = regions, labels = regions_trunc)) %>%
-  left_join(
+  inner_join(
     data_vax_wide,
     by = "patient_id"
   ) %>%
-  # remove those with unknown brand (if present will always be in position 1)
-  filter(covid_vax_1_brand != "unknown") %>%
   # reshape to long
   pivot_longer(
     cols = starts_with("covid_vax"),
     names_to = c("dose", ".value"),
     names_pattern = "covid_vax_(.)_(.*)",
-    values_drop_na = TRUE # removes unvaccinated individuals
+    values_drop_na = TRUE # removes missing doses
   ) %>%
+  filter(dose <= 3) %>% # only keep max 3 doses
+  mutate(across(dose, as.factor)) %>%
   # relabel brand
   mutate(across(brand,
                 factor,
@@ -92,13 +97,16 @@ plot_vax_dates <- function(jcvi_group_select, elig_date_select) {
   colour_palette <- RColorBrewer::brewer.pal(3, "Dark2")
   names(colour_palette) <- levels(plot_data$brand)
   
+  linetype_palette <- c("longdash", "solid", "dotted")
+  names(linetype_palette) <- as.character(1:3)
+  
   plot_out <- plot_data %>%
     ggplot(aes(x = date, colour = brand, linetype = dose)) +
     geom_freqpoly(
       stat = StatBinRounded, 
       binwidth = 1
     ) +
-    facet_grid(region~.) +
+    facet_grid(region~., scales = "free_y") +
     scale_x_date(
       name = "vaccination date",
       date_breaks = "2 months",
@@ -106,6 +114,9 @@ plot_vax_dates <- function(jcvi_group_select, elig_date_select) {
     ) +
     scale_colour_discrete(
       type = colour_palette
+    ) +
+    scale_linetype_manual(
+      values = linetype_palette
     ) +
     labs(
       subtitle = glue::glue("JCVI group {jcvi_group_select_clean}, eligible on {elig_date_select}, aged {age_range_select} years")
@@ -115,13 +126,16 @@ plot_vax_dates <- function(jcvi_group_select, elig_date_select) {
       axis.text.x = element_text(angle = 45, vjust = 0.5),
       axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0)),
       axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0)),
-      text = element_text(size = 10)
+      text = element_text(size = 10),
+      legend.key.size = unit(1, "cm")
     )
   
   ggsave(
+    plot = plot_out,
     filename = here::here("output", "eda", glue::glue("vax_dates_{elig_date_select}.svg")),
     height = 20, width = 15, units = "cm"
   )
+    
   
 }
 
