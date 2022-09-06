@@ -9,13 +9,25 @@
 ## setup
 library(tidyverse)
 
+## source functions
+source(here::here("analysis", "functions", "utility_functions.R"))
+
 # read processed covariates data
 data_processed <- readr::read_rds(
   here::here("output", "data", "data_processed.rds")) 
 
-# read wide vaccine dates data
+# read processed vaccination data
 data_vax_wide <- readr::read_rds(
-  here::here("output", "data", "data_wide_vax_dates.rds"))
+  here::here("output", "data", "data_wide_vax_dates.rds")) 
+
+data_vax_long <- data_vax_wide %>%
+  pivot_longer(
+    cols = starts_with("covid_vax"),
+    names_to = c("dose", ".value"),
+    names_pattern = "covid_vax_(.)_(.*)",
+    values_drop_na = TRUE # removes missing doses
+  ) %>%
+  mutate(across(dose, as.integer))
 
 # count the number of patients in the extracted data
 eligibility_count <- tribble(
@@ -93,7 +105,43 @@ eligibility_count <- eligibility_count %>%
     stage = "a-ex"
   )
 
-# save data from eligibile individuals
+# duplicate those with brands for doses 1-3
+remove_duplicates <- data_vax_long %>%
+  filter(brand %in% "duplicate" & dose <= 3) %>%
+  distinct(patient_id)
+
+data_eligible_a <- data_eligible_a %>%
+  anti_join(remove_duplicates, by = "patient_id") 
+
+eligibility_count <- eligibility_count %>%
+  add_row(
+    description = "Samples with a record of >1 vaccine brands on one date for doses 1-3 removed.",
+    n =  n_distinct(data_eligible_a$patient_id),
+    stage = "a-ex"
+  )
+
+# remove those with unknown brand for doses 1-3
+remove_unknowns <- data_vax_long %>%
+  filter(brand %in% "unknown") %>%
+  distinct(patient_id)
+
+data_eligible_a <- data_eligible_a %>%
+  anti_join(remove_unknowns, by = "patient_id") 
+
+eligibility_count <- eligibility_count %>%
+  add_row(
+    description = "Samples with a record of unknown vaccine brand for doses 1-3 removed.",
+    n =  n_distinct(data_eligible_a$patient_id),
+    stage = "a-ex"
+  )
+
+# number of people removed at each stage
+eligibility_count <- eligibility_count %>%
+  # round 
+  mutate(across(n, ~roundmid_any(.x, to = 7))) %>%
+  mutate(n_removed = lag(n) - n)
+
+# save data from eligible individuals
 readr::write_rds(data_eligible_a %>%
                    select(patient_id, jcvi_group, elig_date, region, ethnicity) %>%
                    droplevels(),
