@@ -125,11 +125,10 @@ study=StudyDefinition(
   ),
   
   # any covid vaccine
-  # use n=1 here as this is just used to exclude individuals from the unvaccinated arm
   **vaccination_date_X(
     name = "covid_vax_disease",
     index_date = "1900-01-01",
-    n = 1,
+    n = 4,
     target_disease_matches="SARS-2 CORONAVIRUS"
   ),
 
